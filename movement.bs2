@@ -1,0 +1,43 @@
+'Variables
+leftIR  VAR Bit
+rightIR VAR Bit
+left    VAR Byte
+right   VAR Byte
+
+'Main
+right = 12
+left = 13
+
+END
+
+'Subroutines
+goForward:
+  FOR counter = 1 TO 15
+     PULSOUT right, 850
+     PULSOUT left, 650
+     PAUSE 20
+  NEXT
+RETURN
+
+turnRight:
+  FOR counter = 1 TO 26
+     PULSOUT right, 850
+     PULSOUT left, 850
+     PAUSE 20
+  NEXT
+RETURN
+
+turnLeft:
+  FOR counter = 1 TO 26
+     PULSOUT right, 650
+     PULSOUT left, 650
+     PAUSE 20
+  NEXT
+RETURN
+
+backUp:
+  FOR counter = 1 TO 90
+    PULSOUT right, 650
+    PULSOUT left, 850
+  NEXT
+RETURN
