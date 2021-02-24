@@ -1,0 +1,86 @@
+'Variables
+leftIR  VAR Bit
+rightIR VAR Bit
+left    VAR Byte
+right   VAR Byte
+run     VAR Bit
+qtis VAR Nib                  ' qti black/white states
+
+'Main
+right = 12
+left = 13
+run = 1
+
+OUTB = %1111                  ' Set OUTB bits to 1
+
+DO WHILE (run = 1)
+  GOSUB Check_Qtis 'Check the QTIS and store their values into the qtis var
+  IF (qtis = %0110) THEN 'Both of the end sensors see no line, and the middle two are on the line
+    GOSUB goForward 'Just go forward, because we are on the line and we do not have to turn
+  ELSEIF (qtis = %1110) THEN 'The left sensor sees the line, and the middle two are on it as well
+    GOSUB goForward 'go forward a little bit more to see if we need to correct or turn and then check the qtis because we went forward and their state might have changed
+    GOSUB Check_Qtis 
+
+    IF (qtis = %1100) THEN 'This means that the right middle qti is no longer on the line meaning we are on an angle, and we need to correct
+      'CORRECT HERE 
+    ELSE 'if the QTIS are in any other physically possible configuration that means there is a turn there
+      GOSUB turnLeft
+    ENDIF
+  ELSEIF (qtis = %0111) THEN 'The right sensor sees the line, and the middle two are on it aswell
+    GOSUB goForward 'go forward a little bit more to see if we need to correct or turn and then check the qtis because we went forward and their state might have changed
+    GOSUB Check_Qtis 
+
+    IF (qtis = %0011) THEN 'This means that the right middle qti is no longer on the line meaning we are on an angle, and we need to correct
+      'CORRECT HERE 
+    ELSE 'if the QTIS are in any other physically possible configuration that means there is a turn there
+      GOSUB turnRight
+    ENDIF
+  ENDIF 
+LOOP
+
+END
+
+'Subroutines
+goForward:
+  FOR counter = 1 TO 15
+     PULSOUT right, 850
+     PULSOUT left, 650
+     PAUSE 20
+  NEXT
+RETURN
+
+turnRight:
+  FOR counter = 1 TO 26
+     PULSOUT right, 850
+     PULSOUT left, 850
+     PAUSE 20
+  NEXT
+RETURN
+
+turnLeft:
+  FOR counter = 1 TO 26
+     PULSOUT right, 650
+     PULSOUT left, 650
+     PAUSE 20
+  NEXT
+RETURN
+
+backUp:
+  FOR counter = 1 TO 90
+    PULSOUT right, 650
+    PULSOUT left, 850
+  NEXT
+RETURN
+
+Check_Qtis:
+' Result -> qtis variable. 0 means white surface, 1 means black
+' surface.
+
+  DIRB = %1111                  ' P7..P4 -> output
+  PAUSE 0                       ' Delay = 230 us
+  DIRB = %0000                  ' P7..P4 -> input
+  PAUSE 0 ' Delay = 230 us
+  ' PULSOUT UnusedPin, 0        ' Delays = 208 + (Duration*2) us
+  qtis = INB ' Store QTI outputs in INB
+
+  RETURN
