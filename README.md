@@ -13,4 +13,5 @@ GOSUB goForward
 GOSUB turnLeft
 GOSUB goForward 
 GOSUB turnRight
+GOSUB backUp
 ```
